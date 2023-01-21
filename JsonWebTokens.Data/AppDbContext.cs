@@ -20,6 +20,7 @@ namespace JsonWebTokens.Data
         public DbSet <UserRefreshToken> UserRefreshTokens{ get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.ApplyConfigurationsFromAssembly(GetType().Assembly)
             base.OnModelCreating(builder);
         }
     }
