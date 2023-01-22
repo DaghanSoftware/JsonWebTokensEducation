@@ -36,7 +36,7 @@ namespace JsonWebTokens.Service.Services
             return Convert.ToBase64String(numberByte);
         }
 
-        private IEnumerable<Claim> GetClaim(UserApp userApp, List<String> audiences)
+        private IEnumerable<Claim> GetClaims(UserApp userApp, List<String> audiences)
         {
             var userlist = new List<Claim>
             {
@@ -47,6 +47,15 @@ namespace JsonWebTokens.Service.Services
             };
             userlist.AddRange(audiences.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x)));
             return userlist;
+        }
+
+        private IEnumerable<Claim> GetClaimByClient(Client client)
+        {
+            var claims = new List<Claim>();
+            claims.AddRange(client.Audiences.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x)));
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString());
+            new Claim(JwtRegisteredClaimNames.Sub,client.Id.ToString());
+            return claims;
         }
 
         public TokenDto CreateToken(UserApp userapp)
