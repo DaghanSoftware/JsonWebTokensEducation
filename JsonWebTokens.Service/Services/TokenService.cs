@@ -8,6 +8,7 @@ using SharedLibrary.Configurations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,6 +25,13 @@ namespace JsonWebTokens.Service.Services
         {
             _userManager = userManager;
             _tokenOptions = options.Value;
+        }
+        private string CreateRefreshToken()
+        {
+            var numberByte = new Byte[32];
+            using var rnd = RandomNumberGenerator.Create();
+            rnd.GetBytes(numberByte);
+            return Convert.ToBase64String(numberByte);
         }
 
         public TokenDto CreateToken(UserApp userapp)
