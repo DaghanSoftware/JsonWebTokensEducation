@@ -16,6 +16,6 @@ namespace JsonWebTokens.Core.Services
 
         Task<Response<NoDataDto>> RevokeRefreshToken(string refreshToken);
 
-        Task<Response<ClientTokenDto>> GetTokenByClientAsync(ClientLoginDto clientLoginDto);
+        Response<ClientTokenDto> CreateTokenByClient(ClientLoginDto clientLoginDto);
     }
 }
