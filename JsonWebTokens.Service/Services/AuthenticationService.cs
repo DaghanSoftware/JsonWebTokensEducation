@@ -63,16 +63,10 @@ namespace JsonWebTokens.Service.Services
             await _unitOfWork.CommitAsync();
             return Response<TokenDto>.Success(token, 200);
         }
-
-        public Task<Response<TokenDto>> CreateTokenByRefreshAsync(string refreshToken)
-        {
-            throw new NotImplementedException();
-        }
-
         public Response<ClientTokenDto> CreateTokenByClient(ClientLoginDto clientLoginDto)
         {
             var client = _client.SingleOrDefault(x => x.Id == clientLoginDto.ClientId && x.Secret == clientLoginDto.ClientSecret);
-            if (client==null)
+            if (client == null)
             {
                 return Response<ClientTokenDto>.Fail("ClientId or CLientSecret Not Found", 404, true);
             }
@@ -80,6 +74,28 @@ namespace JsonWebTokens.Service.Services
             var token = _tokenService.CreateTokenByClient(client);
             return Response<ClientTokenDto>.Success(token, 200);
         }
+
+
+        public async Task<Response<TokenDto>> CreateTokenByRefreshAsync(string refreshToken)
+        {
+            var existRefreshToken = await _userRefreshTokenService.Where(x => x.Code == refreshToken).SingleOrDefaultAsync();
+            if (existRefreshToken==null)
+            {
+                return Response<TokenDto>.Fail("Refresh token not found",404,true);
+            }
+            var user = await _userManager.FindByIdAsync(existRefreshToken.UserId);
+            if (user == null)
+            {
+                return Response<TokenDto>.Fail("User Id not found", 404, true);
+            }
+
+            var tokenDto = _tokenService.CreateToken(user);
+            existRefreshToken.Code = tokenDto.RefreshToken;
+            existRefreshToken.Expiration = tokenDto.RefreshTokenExpiration;
+            await _unitOfWork.CommitAsync();
+            return Response<TokenDto>.Success(tokenDto, 200);
+        }
+
 
         public Task<Response<NoDataDto>> RevokeRefreshToken(string refreshToken)
         {
