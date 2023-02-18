@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace JsonWebTokens.Service.Services
 {
-    static class SignService
+    public static class SignService
     {
         public static SecurityKey GetSymmetricSecurityKey(string securitykey) 
         {

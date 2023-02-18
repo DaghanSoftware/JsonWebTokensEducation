@@ -6,6 +6,7 @@ using JsonWebTokens.Core.UnitOfWork;
 using JsonWebTokens.Data;
 using JsonWebTokens.Data.Repositories;
 using JsonWebTokens.Service.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,7 +37,27 @@ builder.Services.AddIdentity<UserApp, IdentityRole>(opt =>
 }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
 builder.Services.Configure<CustomTokenOption>(builder.Configuration.GetSection("TokenOption"));
+
 builder.Services.Configure<List<Client>>(builder.Configuration.GetSection("Client"));
+builder.Services.AddAuthentication(options => 
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme= JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opts =>
+{
+    var tokenOptions = builder.Configuration.GetSection("TokenOptions").Get<CustomTokenOption>();
+    opts.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+    {
+        ValidIssuer = tokenOptions.Issuer,
+        ValidAudience = tokenOptions.Audience[0],
+        IssuerSigningKey=SignService.GetSymmetricSecurityKey(tokenOptions.SecurityKey),
+        ValidateIssuerSigningKey=true,
+        ValidateAudience=true,
+        ValidateIssuer=true,
+        ValidateLifetime=true,
+        ClockSkew=TimeSpan.Zero
+    };
+});
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
