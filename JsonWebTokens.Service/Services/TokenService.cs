@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace JsonWebTokens.Service.Services
 {
-    class TokenService : ITokenService
+    public class TokenService : ITokenService
     {
 
         private readonly UserManager<UserApp> _userManager;
