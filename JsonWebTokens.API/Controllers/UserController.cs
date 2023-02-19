@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace JsonWebTokens.API.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     public class UserController : CustomBaseController
     {
         private readonly IUserService _userService;

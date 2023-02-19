@@ -45,17 +45,18 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme= JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opts =>
 {
-    var tokenOptions = builder.Configuration.GetSection("TokenOptions").Get<CustomTokenOption>();
+    var tokenOptions = builder.Configuration.GetSection("TokenOption").Get<CustomTokenOption>();
     opts.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
     {
         ValidIssuer = tokenOptions.Issuer,
         ValidAudience = tokenOptions.Audience[0],
-        IssuerSigningKey=SignService.GetSymmetricSecurityKey(tokenOptions.SecurityKey),
-        ValidateIssuerSigningKey=true,
-        ValidateAudience=true,
-        ValidateIssuer=true,
-        ValidateLifetime=true,
-        ClockSkew=TimeSpan.Zero
+        IssuerSigningKey = SignService.GetSymmetricSecurityKey(tokenOptions.SecurityKey),
+
+        ValidateIssuerSigningKey = true,
+        ValidateAudience = true,
+        ValidateIssuer = true,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
     };
 });
 builder.Services.AddControllers();
