@@ -1,5 +1,7 @@
 ﻿using JsonWebTokens.Core.Models.Dtos;
+using JsonWebTokens.Core.Models.Entities;
 using JsonWebTokens.Core.Services;
+using Microsoft.AspNetCore.Identity;
 using SharedLibrary.Dtos;
 using System;
 using System.Collections.Generic;
@@ -11,14 +13,38 @@ namespace JsonWebTokens.Service.Services
 {
     public class UserService : IUserService
     {
-        public Task<Response<UserAppDto>> CreateUserAsync(CreateUserDto createUserDto)
+        private readonly UserManager<UserApp> _userManager;
+
+        public UserService(UserManager<UserApp> userManager)
         {
-            throw new NotImplementedException();
+            _userManager = userManager;
         }
 
-        public Task<Response<UserAppDto>> GetUserByNameAsync(string userName)
+        public async Task<Response<UserAppDto>> CreateUserAsync(CreateUserDto createUserDto)
         {
-            throw new NotImplementedException();
+            var user = new UserApp { Email = createUserDto.Email, UserName = createUserDto.UserName,City=createUserDto.City };
+
+            var result = await _userManager.CreateAsync(user, createUserDto.Password);
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(x => x.Description).ToList();
+
+                return Response<UserAppDto>.Fail(new ErrorDto(errors, true), 400);
+            }
+            return Response<UserAppDto>.Success(ObjectMapper.Mapper.Map<UserAppDto>(user), 200);
+        }
+
+        public async Task<Response<UserAppDto>> GetUserByNameAsync(string userName)
+        {
+            var user = await _userManager.FindByNameAsync(userName);
+
+            if (user == null)
+            {
+                return Response<UserAppDto>.Fail("UserName not found", 404, true);
+            }
+
+            return Response<UserAppDto>.Success(ObjectMapper.Mapper.Map<UserAppDto>(user), 200);
         }
     }
 }
